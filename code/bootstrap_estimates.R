@@ -8,10 +8,10 @@ theme_set(theme_bw()+
 source('./code/functions.R')
 
 # data ----
-events <- read.csv('./data/events_2016_161027.csv')
-catch <- read.csv('./data/catchComp_2016_161027.csv')
-area <- read.csv('./data/area.csv')
-awl <- read.csv('data/awl_2016_161027.csv')
+events <- read.csv('./data/events_2017D06_170522.csv')
+catch <- read.csv('./data/catchComp_2017D06_170522.csv')
+area <- read.csv('./2016_survey/data/area.csv')
+awl <- read.csv('data/awl_2017D06_170522.csv')
 
 # event data ----
 #clean up event data- change names and data types etc.
