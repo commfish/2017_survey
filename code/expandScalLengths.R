@@ -1,7 +1,7 @@
 ###############################
 ## EXPAND SCAL LENGTHS       ##
 ###############################
-# josh mumm 161212
+# josh mumm 
 # accounts for unequal sampling density of small vs large scals
 # by expanding sampled size distribution of each to the total number caught by event  
 
@@ -17,9 +17,9 @@ theme_set(theme_bw(base_size=12,base_family='Times New Roman')+
              theme(panel.grid.major = element_blank(),
                    panel.grid.minor = element_blank()))
 
-awl <- read.csv('./data/awl_2016_161027.csv')
-event <- read.csv('./data/events_2016_161027.csv')
-cc <- read.csv('./data/catchComp_2016_161027.csv')
+awl <- read.csv('./data/awl_2017D06_170522.csv')
+event <- read.csv('./data/events_2017D06_170522.csv')
+cc <- read.csv('./data/catchComp_2017D06_170522.csv')
 
 awl %>% filter (RACE_CODE==74120 & is.na(CLAPPER)) %>%
    select(Event = EVENT_ID, sc=SCAL_SIZE_CLASS, sh=SHELL_HEIGHT_MM) -> awl
@@ -125,29 +125,25 @@ for(i in events){
 #compare totals
 nrow(dat)
 sum(tot_w[,c("L","S")])
-# hmmm 23 more in expanded than on total. Presumably due to rounding issue or similar(?). 
 
-# #### compare histograms of awl to dat (combined measured + expanded)
-# library (lattice) 
-# par(mfcol = c(2,1))
-# # all 
-#   hist (~ sh , data = awl, breaks = seq(0,200,1), main  = c("measured", "all beds"), freq = T, col = 'red' )   
-#   hist (~ sh , data = dat, breaks = seq(0,200,1), main  = c("expanded", "all beds"), freq = T, col = 'blue')
-# 
-# #by Bed
-# beds <- (sort(unique(dat$Bed)))
-# for (i in beds) {
-#   hist (~ sh , data = subset(awl, Bed == i), breaks = seq(0,200,1), main  = c("measured", i), freq = T, col = 'red' )   
-#   hist (~ sh , data = subset(dat, Bed == i), breaks = seq(0,200,1), main  = c("expanded", i), freq = T, col = 'blue')
-# }
+#### compare histograms of awl to dat (combined measured + expanded)
+library (lattice)
+par(mfcol = c(2,1))
+# all
+  hist (~ sh , data = awl, breaks = seq(0,200,1), main  = c("measured", "all beds"), freq = T, col = 'red' )
+  hist (~ sh , data = dat, breaks = seq(0,200,1), main  = c("expanded", "all beds"), freq = T, col = 'blue')
 
-# seems reasonable.  Appear to be a few more expanded smalls in WK1 than measured 
-# This is what i'd expect if the sampled ratio was less for smalls than larges. 
-# and also expanded hists aren't as "smooth". Sampling artifacts get exagerated.
+#by Bed
+beds <- (sort(unique(dat$Bed)))
+for (i in beds) {
+  hist (~ sh , data = subset(awl, Bed == i), breaks = seq(0,200,1), main  = c("measured", i), freq = T, col = 'red' )
+  hist (~ sh , data = subset(dat, Bed == i), breaks = seq(0,200,1), main  = c("expanded", i), freq = T, col = 'blue')
+}
+
 
 #set the levels for plotting
-dat <- within(dat, Bed <- factor(Bed, levels = c('EK1','WK1','KSH1','KSH2','KSH3')))
-dat %>% group_by(Bed) %>% summarise(n=n()) %>% mutate(x=c(0,0,0,0,0), y=c(25,50,25,5,1)) -> dat.n
+dat <- within(dat, Bed <- factor(Bed, levels = c('KSH1','KSH2')))
+dat %>% group_by(Bed) %>% summarise(n=n()) %>% mutate(x=c(0,0), y=c(50,1)) -> dat.n
 
 ggplot(dat,aes(sh))+geom_histogram(fill=4, alpha=.2, color=1, bins=75)+
    facet_wrap(~Bed, ncol=1,scale='free_y')+
