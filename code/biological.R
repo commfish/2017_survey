@@ -12,7 +12,7 @@ options (scipen = 999)
 
 # data ----
 #clean up event data- change names and data types etc.
-events <- read.csv('./data/events_2016_161027.csv')
+events <- read.csv('./data/events_2017D06_170522.csv')
 events %>% mutate(ID = gsub(" ", "", STATION_ID),date = as.Date(DATE_SET, format='%m-%d-%Y'),
                   year = as.numeric(format(date, "%Y"))) %>% 
   select(year=year, date=date, Event = EVENT_ID, District = DISTRICT, 
@@ -24,14 +24,14 @@ events %>% mutate(ID = gsub(" ", "", STATION_ID),date = as.Date(DATE_SET, format
          performance=GEAR_PERFORMANCE_CODE_SW, Vessel=VESSEL_NAME) %>% 
   filter (performance == 1, Type != "Ancillary") -> event
 
-catch <- read.csv('./data/catchComp_2016_161027.csv')
+catch <- read.csv('./data/catchComp_2017D06_170522.csv')
 catch %>% select(Event = EVENT_ID, species=RACE_CODE, 
                  size_class=SCAL_SIZE_CLASS, count=COUNT,
                  sample_wt=SAMPLE_WT_KG, cond = CONDITION_CODE_RII, 
                  sample_type = SAMPLE_TYPE)  %>%
   filter (Event %in% event$Event) -> catch
 
-awl <- read.csv('./data/awl_2016_161027.csv')
+awl <- read.csv('./data/awl_2017D06_170522.csv')
 awl %>% select(Event = EVENT_ID, species=RACE_CODE, weight=WHOLE_WT_GRAMS, 
                worm=SHELL_WORM_SW, height=SHELL_HEIGHT_MM, sex=SEX_SW, 
                gonad_cond=SCAL_GONAD_COND, blister=MUD_BLISTER_SW, 
@@ -86,16 +86,16 @@ blist.pn <- rbind(blist.p, margin.table(blist, 2))
 weak.pn <-  rbind(weak.p, margin.table(weak, 2))
 
 # change row names.  Should use LUTs or some other type of substitution, in case classes observed in future changes. 
-worm.pn <- as.data.frame(worm.pn) %>% mutate(Percent=c("0%", "1 - 24%", "25 - 49%", "50 - 74%", "75 - 100%", "n"))
-gonad.pn <- as.data.frame(gonad.pn) %>% mutate(Stage=c("Empty", "Initial Recovery", "Filling", "Full", "n"))
-blist.pn <- as.data.frame(blist.pn) %>% mutate(Percent = c("0%", "1 - 24%", "25 - 49%", "50 - 74%", "n"))   # no 4's (75-100%) this year
+worm.pn <- as.data.frame(worm.pn) %>% mutate(Percent=c("0%", "1 - 24%", "25 - 49%", "50 - 74%",  "n")) #no 4's in 2017D06 "75 - 100%",
+gonad.pn <- as.data.frame(gonad.pn) %>% mutate(Stage=c("Empty", "Filling", "Full", "n")) # no 2's in 2017D06 "Initial Recovery"
+blist.pn <- as.data.frame(blist.pn) %>% mutate(Percent = c("0%", "1 - 24%", "n"))   # no > 1's 2017D06
 weak.pn <- as.data.frame(weak.pn) %>% mutate(Meats = c("Good", "Weak", "n"))
 
-# reorder kayak beds together
-worm.pn <- worm.pn[,c("Percent","EK1","WK1","KSH1", "KSH2", "KSH3")]
-gonad.pn <- gonad.pn[,c("Stage","EK1 April","WK1 April","KSH1 May","KSH1 July", "KSH2 July", "KSH3 July")] # In word, move Month to column spanners. 
-blist.pn <- blist.pn[,c("Percent","EK1","WK1","KSH1", "KSH2", "KSH3")]
-weak.pn <- weak.pn[,c('Meats',"EK1","WK1","KSH1", "KSH2", "KSH3")]
+# reorder kayak beds together #Not needed for 2017D06
+# worm.pn <- worm.pn[,c("Percent","EK1","WK1","KSH1", "KSH2", "KSH3")]
+# gonad.pn <- gonad.pn[,c("Stage","EK1 April","WK1 April","KSH1 May","KSH1 July", "KSH2 July", "KSH3 July")] # In word, move Month to column spanners. 
+# blist.pn <- blist.pn[,c("Percent","EK1","WK1","KSH1", "KSH2", "KSH3")]
+# weak.pn <- weak.pn[,c('Meats',"EK1","WK1","KSH1", "KSH2", "KSH3")]
 
 
 write_csv(worm.pn,'./output/worm.csv')
