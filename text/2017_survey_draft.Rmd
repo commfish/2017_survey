@@ -1,5 +1,5 @@
 ---
-title: "2016 Statewide Weathervane Scallop Survey Summary"
+title: "2017 Statewide Weathervane Scallop Survey Summary"
 author:
 - affiliation: Alaska Department of Fish and Game, Juneau, AK
   email: ben.williams@alaska.gov
@@ -36,18 +36,10 @@ In the spring of 2016 a program of expansion of the dredge based fishery-indepen
 # STUDY SITE
 ### The Kodiak Shelikof study area
 
-![](../figs/KSH_tows_2016.png)
+<!-- ![](../figs/KSH_tows_2016.png) remove comments and update to new map -->
 
 Figure 1.- Shelikof Survey area showing location of the three beds Shelikof 1 (KSH1), Shelikof 2 (KSH2), and Shelikof 3 (KSH3). Red lines show the tow track of stations sampled in May. Black lines show the tow track of stations sampled in July.
 
-###The Kayak Island study area
-
-The Kayak Island study area is located near the southern end of Kayak Island in the Gulf of Alaska (Figure 2). This area is subject to severe weather conditions and large ocean swells. Coastal currents primarily run westerly as part of a counter-clockwise gyre in the northern Gulf of Alaska, and maximum tidal exchanges are typically less than 5 m (16.5 ft). Bottom substrate in the study area is primarily sand and pebbles with some rock and mud; rocky reefs are present near Cape St. Elias. Mud and glacial flour are common in the nearshore marine waters as outfall from glacial rivers located east of Kayak Island. Depth contours run from southwest to northeast, approximately parallel to the Kayak Island shoreline. Bottom depths in the scallop beds gradually slope from approximately 55 m (30 fathoms) in the northwest to over 110 m (60 fathoms) in the southeast.
-
-
-![](../figs/Kayak_tows_2016.png)
-
-Figure 2.-Kayak Island survey area area showing location of the two beds East Kayak 1 (EK1), and West Kayak 1 (WK1). Red lines show the tow track of stations sampled in May. 
 
 
 #OBJECTIVES  
@@ -141,9 +133,8 @@ meat.wts <- read.csv('../output/meat.wts.csv')
 A total of
 `r samples %>% filter(Bed=='KSH1'| Bed=='KSH2'|Bed=='KSH3') %>% summarise(n=sum(n))`
 successful 1 nmi dredge tows were conducted during the 2016 Shelikof area scallop survey
-`r filter(samples, Bed=='KSH1')$n` in bed 1,
-`r filter(samples, Bed=='KSH2')$n` in bed 2, and
-`r filter(samples, Bed=='KSH3')$n` in bed 3 (Figure 1).
+`r filter(samples, Bed=='KSH1')$n` in bed 1 and 
+`r filter(samples, Bed=='KSH2')$n` in bed 2 (Figure 1).
 There were a total of 
 `r raw %>% filter(Bed=='KSH1'| Bed=='KSH2'|Bed=='KSH3') %>% summarise(sum(large.c + small.c))%>% prettyNum(digits=4, big.mark=",")`
 scallops sampled, weighing 
@@ -155,21 +146,7 @@ Catch abundance ranged from
 `r raw %>% filter(Bed=='KSH1'| Bed=='KSH2'|Bed=='KSH3') %>% summarise(min(min.s))` to 
 `r raw %>% filter(Bed=='KSH1'| Bed=='KSH2'|Bed=='KSH3') %>% summarise(max(max.s))` for small scallops/nmi.
 
-### Kayak Island 
-A total of `r filter(samples, Bed=='EK1')$n + filter(samples, Bed=='WK1')$n`
-successful 1 nmi dredge tows were conducted during the 2016 Kayak Island scallop survey
-`r filter(samples, Bed=='EK1')$n` in the east bed and
-`r filter(samples, Bed=='WK1')$n` in the west bed (Figure 2).
-There were a total of 
-`r raw %>% filter(Bed=='EK1') %>% summarise(large.c + small.c)`
-scallops sampled, weighing
-`r raw %>% filter(Bed=='EK1') %>% summarise(large.kg + small.kg)%>% prettyNum(digits=4, big.mark=",")`
-kg (`r raw %>% filter(Bed=='EK1') %>% summarise(large.lb + small.lb) %>% prettyNum(digits=4, big.mark=",")` lb). 
-Catch abundance ranged from 
-`r raw %>% filter(Bed=='EK1'| Bed=='WK1') %>% summarise(min(min.l))` to 
-`r raw %>% filter(Bed=='EK1'| Bed=='WK1') %>% summarise(max(max.l))` for large scallops/nmi and
-`r raw %>% filter(Bed=='EK1'| Bed=='WK1') %>% summarise(min(min.s))` to 
-`r raw %>% filter(Bed=='EK1'| Bed=='WK1') %>% summarise(max(max.s))` for small scallops/nmi.
+
 
 ## Scallop density and abundance  
 
@@ -185,8 +162,7 @@ Proposed GHLs were generally similar between the two meat weight estimates (Tabl
 
 ```{r}
 a <- read_csv('../output/N_summary.csv')
-a %>% filter(Bed=='WK1', variable=='all') -> wk1
-awl <- read_csv('../data/awl_2016_161027.csv')
+awl <- read_csv('../data/awl_2017D06_170522.csv')
 ```
   
 
@@ -223,8 +199,7 @@ b %>%
   summarise (sample_size = mean(n), area = mean(area)) %>% 
    left_join(a) %>% 
   filter(variable == 'large')%>%
-		mutate(id = c(1,3,4,5,2)) %>% 
-	arrange(id) %>% 
+		
   mutate(dbar = round(dbar_b), cv = round(cv), N = round(N_b), CV = round(cvN), size.class = variable) %>% ungroup %>% 
    dplyr::select(Bed, area, sample_size, N, CV, -year) %>%  
    mutate_each(funs(prettyNum(., big.mark=","))) %>% 
@@ -259,9 +234,7 @@ a %>%
           dbar=round(dbar_b),
           dbar_UL=round(uldbar),
           dbar_LL=round(lldbar)) %>% 
-	mutate(id = c(rep(1,3),rep(3,3),rep(4,3),rep(5,3),rep(2,3))) %>% 
-	arrange(id, variable) %>% 
-   select(Bed, variable, N,N_LL,N_UL,dbar,dbar_LL,dbar_UL) %>% 
+	   select(Bed, variable, N,N_LL,N_UL,dbar,dbar_LL,dbar_UL) %>% 
    mutate_each(funs(prettyNum(., big.mark=","))) %>%  mutate_each(funs(prettyNum(., big.mark=","))) %>%  
    kable(col.names = column_names, caption = "Estimates of abundance and density with 95% bootstrap confidence intervals")
 ```
@@ -272,9 +245,7 @@ f <- read.csv('../output/weights_summary.csv')
 column_names = c('Bed', 'Weight', 'LL', 'UL', 'CV')
 f %>% filter(variable == 'large') %>% 
    mutate(RW=round(Weight),RW_UL=round(ulW),RW_LL=round(llW), CV = round(cvW)) %>% 
-	mutate(id = c(1,3,4,5,2)) %>% 
-	arrange(id) %>%  
-   select(Bed, RW, RW_LL, RW_UL, CV, -id) %>%  
+   select(Bed, RW, RW_LL, RW_UL, CV) %>%  
    mutate_each(funs(prettyNum(., big.mark=","))) %>% 
    kable(col.names = column_names, caption = "Estimates of round weight (lb) with 95% bootstrap confidence intervals for large scallops by bed.")
 
@@ -286,9 +257,8 @@ column_names = c('Bed', 'Ratio', 'LL', 'UL')
 
 meat.wts %>% mutate(Ratio=round(ratio_bar, digits=3),
              LL=round(ll, digits=4),
-             UL=round(ul, digits=4)) %>% mutate(id = c(1,3,4,5,2)) %>% 
-	arrange(id) %>% 
-   select(Bed,Ratio, LL, UL, -id) %>%
+             UL=round(ul, digits=4)) %>% 
+   select(Bed,Ratio, LL, UL) %>%
    mutate_each(funs(prettyNum(., big.mark=","))) %>% kable(caption= 'Meat weight to round weight ratio (lb) by bed from individual scallops with 95% bootstrap confidence intervals.')
 ```
 
@@ -297,8 +267,6 @@ options(digits=2)
 a <- read.csv('../output/number_GHL.csv')
 column_names = c('Bed', 'GHL 5%', 'LL 5%', 'UL 5%','GHL 10%', 'LL 10%', 'UL 10%')
 a %>% 
-	mutate(id = c(1,3,4,5,2)) %>% 
-	arrange(id) %>% 
 	dplyr::select(Bed, GHL.05, lowGHL.05, highGHL.05, GHL.10, lowGHL.10, highGHL.10) %>% 
 	mutate_each(funs(prettyNum(., big.mark=","))) %>% 
 	kable(col.names = column_names,caption= 'Meat weight GHL (lb) estimates by bed, using meat weight estimate 1, for a 5 and 10 % exploitation rate.')
@@ -311,8 +279,6 @@ options(digits=2)
 a <- read.csv('../output/weight_GHL.csv')
 column_names = c('Bed', 'GHL 5%', 'LL 5%', 'UL 5%','GHL 10%', 'LL 10%', 'UL 10%')
 a %>% 
-	mutate(id = c(1,3,4,5,2)) %>% 
-	arrange(id) %>% 
 	dplyr::select(Bed, GHL.05, lowGHL.05, highGHL.05, GHL.10, lowGHL.10, highGHL.10) %>% 
 	mutate_each(funs(prettyNum(., big.mark=","))) %>% 
 	kable(col.names = column_names,caption= 'Meat weight GHL (lb) estimates by bed, using meat weight estimate 2, for a 5 and 10 % exploitation rate.')
@@ -356,8 +322,7 @@ options(digits=3)
  
 g <- read.csv('../output/clapper.summary.csv')
 column_names = c('Bed', 'Year', '% in numbers', '% in round weight')
-g %>% mutate(id = c(1,3,4,5,2)) %>% 
-	arrange(id) %>% select(Bed, year, percent_clap, percent_clap_wt) %>% kable(col.names = column_names,caption= 'Percent of clappers present in round weight and numbers by bed.')
+g %>% select(Bed, year, percent_clap, percent_clap_wt) %>% kable(col.names = column_names,caption= 'Percent of clappers present in round weight and numbers by bed.')
 ```
 
 
