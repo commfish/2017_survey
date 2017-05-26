@@ -162,7 +162,7 @@ Proposed GHLs were generally similar between the two meat weight estimates (Tabl
 
 ```{r}
 a <- read_csv('../output/N_summary.csv')
-awl <- read_csv('../data/awl_2017D06_170522.csv')
+awl <- read_csv('../data/awl_2017D06_170526.csv')
 ```
   
 

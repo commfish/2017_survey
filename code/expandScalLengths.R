@@ -17,7 +17,7 @@ theme_set(theme_bw(base_size=12,base_family='Times New Roman')+
              theme(panel.grid.major = element_blank(),
                    panel.grid.minor = element_blank()))
 
-awl <- read.csv('./data/awl_2017D06_170522.csv')
+awl <- read.csv('./data/awl_2017D06_170526.csv')
 event <- read.csv('./data/events_2017D06_170522.csv')
 cc <- read.csv('./data/catchComp_2017D06_170522.csv')
 
@@ -118,7 +118,7 @@ for(i in events){
   print ( c("####",paste (i, "   COMPLETE") , "####"))
 }
 
-#write.csv (dat,"expandedScalLengths.csv")
+write.csv (dat,"expandedScalLengths.csv")
 
 ## ERROR CHECKING ----                                                                                                   
 

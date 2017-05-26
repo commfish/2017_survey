@@ -11,7 +11,7 @@ source('./code/functions.R')
 events <- read.csv('./data/events_2017D06_170522.csv')
 catch <- read.csv('./data/catchComp_2017D06_170522.csv')
 area <- read.csv('./2016_survey/data/area.csv')
-awl <- read.csv('data/awl_2017D06_170522.csv')
+awl <- read.csv('data/awl_2017D06_170526.csv')
 
 # event data ----
 #clean up event data- change names and data types etc.
@@ -299,10 +299,10 @@ ggsave("./figs/Abundance.png", dpi=300, height=4.5, width=6.5, units="in")
 meat.wts %>%  
    ggplot(aes(ratio_bar, fill=Bed))+geom_density()+ facet_wrap(~Bed)
 
-weight %>% filter(variable=='large') %>% 
+weight %>% filter(variable=='large') %>% #2017 - weight does not exist
    ggplot(aes(dbar_lb, fill=Bed))+geom_density()
 
-weight %>% filter(variable=='small') %>% 
+weight %>% filter(variable=='small') %>% #2017 - weight does not exist
    ggplot(aes(N_lb, fill=Bed))+geom_density() + facet_wrap(~Bed)
 
 wt.text = data.frame(Bed='EK1', variable='large', Weight=3.5)

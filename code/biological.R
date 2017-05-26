@@ -31,7 +31,7 @@ catch %>% select(Event = EVENT_ID, species=RACE_CODE,
                  sample_type = SAMPLE_TYPE)  %>%
   filter (Event %in% event$Event) -> catch
 
-awl <- read.csv('./data/awl_2017D06_170522.csv')
+awl <- read.csv('./data/awl_2017D06_170526.csv')
 awl %>% select(Event = EVENT_ID, species=RACE_CODE, weight=WHOLE_WT_GRAMS, 
                worm=SHELL_WORM_SW, height=SHELL_HEIGHT_MM, sex=SEX_SW, 
                gonad_cond=SCAL_GONAD_COND, blister=MUD_BLISTER_SW, 
@@ -54,9 +54,8 @@ awl %>% left_join(event) %>%
   ggplot(aes(height))+geom_density(alpha=.2,fill=4)+facet_wrap(~Bed)
 
 #height densities - 
-awl %>% left_join(event) %>% filter(Bed=='KSH1', sex!='NA') %>% 
+awl %>% left_join(event) %>% filter(is.na (clapper), sex != 'NA') %>% 
   ggplot(aes(height, fill=factor(sex),color=factor(sex)))+geom_density(alpha=.2)+facet_wrap(~Bed)
-# getting some issues between using 0 and using NA - need to examine this.
 
 # OTHER SCAL BIOLOGICAL DATA TABLES ----
 
