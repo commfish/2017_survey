@@ -36,7 +36,7 @@ In the spring of 2016 a program of expansion of the dredge based fishery-indepen
 # STUDY SITE
 ### The Kodiak Shelikof study area
 
-<!-- ![](../figs/KSH_tows_2016.png) remove comments and update to new map -->
+![](../figs/KSH_tows_2017.png) remove comments and update to new map
 
 Figure 1.- Shelikof Survey area showing location of the three beds Shelikof 1 (KSH1), Shelikof 2 (KSH2), and Shelikof 3 (KSH3). Red lines show the tow track of stations sampled in May. Black lines show the tow track of stations sampled in July.
 
