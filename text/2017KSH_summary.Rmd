@@ -1,0 +1,134 @@
+---
+title: "2017KSH_summary"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(tidyverse)
+options(scipen=9999) # remove scientific notation
+
+```
+
+Summary tables for 2017 shelikof survey combined with 2016.
+
+``````{r, echo=F, message=F, warning=F}
+
+# combine 2016 and 2017 output tables, filter KSH, and sort. ----
+  #numbers_original 
+  rbind(
+    read.csv ("../output/numbers_original.csv") %>% select(-sd_N),
+    read.csv ("../2016_survey/output/numbers_original.csv")) %>%
+    filter(Bed == 'KSH1' | Bed == 'KSH2') %>% 
+    arrange(Bed,year) -> numbers_original 
+
+  #N_summary 
+  rbind(
+    read.csv ("../output/N_summary.csv"),
+    read.csv ("../2016_survey/output/N_summary.csv")) %>% 
+    filter(Bed == 'KSH1' | Bed == 'KSH2') %>% 
+    arrange(Bed,variable,year) -> N_summ
+  
+  #weights_sumamry
+  rbind(
+    read.csv ("../output/weights_summary.csv"),
+    read.csv ("../2016_survey/output/weights_summary.csv")) %>% 
+    filter(Bed == 'KSH1' | Bed == 'KSH2') %>% 
+    arrange(Bed,variable,year) -> weights_summ
+  
+  #meat weights 
+  rbind(
+    read.csv ("../output/meat.wts.csv"),
+    read.csv ("../2016_survey/output/meat.wts.csv")) %>% 
+    filter(Bed == 'KSH1' | Bed == 'KSH2') %>% 
+    arrange(Bed,year) -> meat.wts
+  
+  #number_GHL 
+  rbind(
+    read.csv ("../output/number_GHL.csv"),
+    read.csv ("../2016_survey/output/number_GHL.csv")) %>% 
+    filter(Bed == 'KSH1' | Bed == 'KSH2') %>% 
+    arrange(Bed,year) -> number_GHL
+  
+  #weight)_GHL
+  rbind(
+    read.csv ("../output/weight_GHL.csv") ,
+    read.csv ("../2016_survey/output/weight_GHL.csv") %>% mutate(year = "2016")) %>% # year not included in 2016 output 
+    filter(Bed == 'KSH1' | Bed == 'KSH2') %>% 
+    arrange(Bed,year) -> weight_GHL
+```
+
+``````{r, echo=F, message=F, warning=F}  
+column_names = c('Bed', "Year", 'Area (nmi)', 'Sample', 'N (numbers)', 'CV')
+numbers_original %>%
+  group_by(Bed, year) %>%
+  summarise (sample_size = mean(n), area = mean(area)) %>% 
+   left_join(N_summ) %>% 
+  filter(variable == 'large')%>%
+		
+  mutate(dbar = round(dbar_b), cv = round(cv), N = round(N_b), CV = round(cvN), size.class = variable) %>% ungroup %>% 
+   dplyr::select(Bed, year, area, sample_size, N, CV) %>%  
+   mutate_each(funs(prettyNum(., big.mark=","))) %>% 
+   kable( ,col.names = column_names, caption = "Estimates of large scallop abundance and CV by bed.")  
+
+```  
+
+``````{r, echo=F, message=F, warning=F}  
+column_names = c('Bed', 'Year','Size class', 'N (indiv scallops)', 'LL', 'UL', 'Density (scallop/nmi)', 'D LL','D UL' )
+
+N_summ %>% 
+   mutate(N=round(N_b),
+          N_UL=round(ulN),
+          N_LL=round(llN),
+          dbar=round(dbar_b),
+          dbar_UL=round(uldbar),
+          dbar_LL=round(lldbar)) %>% 
+	   select(Bed, year, variable, N,N_LL,N_UL,dbar,dbar_LL,dbar_UL) %>% 
+   mutate_each(funs(prettyNum(., big.mark=","))) %>%  mutate_each(funs(prettyNum(., big.mark=","))) %>%  
+   kable(col.names = column_names, caption = "Estimates of abundance and density with 95% bootstrap confidence intervals")
+
+```
+
+
+```{r, echo=F, message=F, warning=F}
+
+column_names = c('Bed', 'Year', 'Weight', 'LL', 'UL', 'CV')
+weights_summ %>% filter(variable == 'large') %>% 
+   mutate(RW=round(Weight),RW_UL=round(ulW),RW_LL=round(llW), CV = round(cvW)) %>% 
+   select(Bed, year, RW, RW_LL, RW_UL, CV) %>%  
+   mutate_each(funs(prettyNum(., big.mark=","))) %>% 
+   kable(col.names = column_names, caption = "Estimates of round weight (lb) with 95% bootstrap confidence intervals for large scallops by bed.")
+
+```
+
+
+```{r, echo=F, message=F, warning=F}
+column_names = c('Bed', 'Year', 'Ratio', 'LL', 'UL')
+meat.wts %>% mutate(Ratio=round(ratio_bar, digits=3),
+             LL=round(ll, digits=4),
+             UL=round(ul, digits=4)) %>% 
+   select(Bed, year, Ratio, LL, UL) %>%
+   mutate_each(funs(prettyNum(., big.mark=","))) %>% kable(col.names = column_names, caption= 'Meat weight to round weight ratio (lb) by bed from individual scallops with 95% bootstrap confidence intervals.')
+```
+
+
+```{r, echo=F, message=F, warning=F}
+options(digits=2)
+column_names = c('Bed','Year', 'GHL 5%', 'LL 5%', 'UL 5%','GHL 10%', 'LL 10%', 'UL 10%')
+number_GHL %>% 
+	dplyr::select(Bed,year, GHL.05, lowGHL.05, highGHL.05, GHL.10, lowGHL.10, highGHL.10) %>% 
+	mutate_each(funs(prettyNum(., big.mark=","))) %>% 
+	kable(col.names = column_names,caption= 'Meat weight GHL (lb) estimates by bed, using meat weight estimate 1, for a 5 and 10 % exploitation rate.')
+```
+
+
+```{r, echo=F, message=F, warning=F}
+options(digits=2)
+column_names = c('Bed', 'Year', 'GHL 5%', 'LL 5%', 'UL 5%','GHL 10%', 'LL 10%', 'UL 10%')
+weight_GHL %>% 
+	dplyr::select(Bed, year,GHL.05, lowGHL.05, highGHL.05, GHL.10, lowGHL.10, highGHL.10) %>% 
+	mutate_each(funs(prettyNum(., big.mark=","))) %>% 
+	kable(col.names = column_names,caption= 'Meat weight GHL (lb) estimates by bed, using meat weight estimate 2, for a 5 and 10 % exploitation rate.')
+
+```
