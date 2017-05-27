@@ -118,7 +118,7 @@ for(i in events){
   print ( c("####",paste (i, "   COMPLETE") , "####"))
 }
 
-write.csv (dat,"expandedScalLengths.csv")
+ #write.csv (dat,"output/expandedScalLengths.csv")
 
 ## ERROR CHECKING ----                                                                                                   
 
