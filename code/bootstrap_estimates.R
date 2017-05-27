@@ -228,7 +228,7 @@ awl %>% filter(species == 74120, size_class == 1, is.na(clapper),
 
 # Weight based GHL 
 meat.wts %>% left_join(weights_summary) %>% 
-   filter(variable=='large') %>% group_by(Bed) %>% 
+   filter(variable=='large') %>% group_by(year,Bed) %>% 
    summarise(ll = ratio_bar*llW,
              meat = ratio_bar*Weight,
              ul = ratio_bar*ulW,
