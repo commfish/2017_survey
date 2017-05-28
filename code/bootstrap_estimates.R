@@ -16,42 +16,51 @@ awl <- read.csv('data/awl_2017D06_170526.csv')
 # event data ----
 #clean up event data- change names and data types etc.
 
-events %>% mutate(ID = gsub(" ", "", STATION_ID),date = as.Date(DATE_SET, format='%m-%d-%Y'),
+events %>% 
+  mutate(ID = gsub(" ", "", STATION_ID),date = as.Date(DATE_SET, format='%m-%d-%Y'),
                   year = as.numeric(format(date, "%Y"))) %>% 
-   select(year, date, Event = EVENT_ID, District = DISTRICT, 
+  select(year, date, Event = EVENT_ID, District = DISTRICT, 
           Dredge = DREDGE_ID, Bed = BED_SW, Type = STATION_TYPE, ID = ID, 
           slat = START_LATITUDE, slon=START_LONGITUDE, sdepth = DEPTH_START_F, 
           stime = START_TIME, speed=TOW_SPEED, maxdepth=Max_Dpth_fa, mindepth=Min_Dpth_fa, 
           elat=END_LATITUDE, elon=END_LONGITUDE, edepth=DEPTH_END_F, etime=END_TIME, 
           calc_length=TOW_LENGTH_CALC, field_length=TOW_LENGTH_FIELD,length=TOW_LENGTH_DESIGNATED,
-          performance=GEAR_PERFORMANCE_CODE_SW, Vessel=VESSEL_NAME) %>% filter(performance==1)-> event
+          performance=GEAR_PERFORMANCE_CODE_SW, Vessel=VESSEL_NAME) %>% 
+  filter(performance==1)-> event
 
 #check for replicates - if dataframe has values there are duplicates
-event %>% group_by(Bed, ID) %>% filter(n()>1)
+event %>% 
+  group_by(Bed, ID) %>% 
+  filter(n()>1)
 
 # join area and event dataframes
 # n = number of stations sampled by bed
 event %>%  #ai is in nmi^2
-   group_by(Bed) %>% 
-   summarise(n=n()) %>% 
-   left_join(area) %>% select(-grids)-> samples
+  group_by(Bed) %>% 
+  summarise(n=n()) %>% 
+  left_join(area) %>% 
+  select(-grids)-> samples
 
 # Q = 0.83
 Q <- 0.83
 
 # add ai column to event dataframe
 # Dredge width in nmi = 0.00131663 x length of dredging in each station x efficiency
-event %>% mutate(ai = length * 0.00131663 * Q) %>% left_join(samples) -> event
+event %>% 
+  mutate(ai = length * 0.00131663 * Q) %>% 
+  left_join(samples) -> event
 
 # Catch data ----
-catch %>% select(Event = EVENT_ID, species=RACE_CODE, 
+catch %>% 
+  select(Event = EVENT_ID, species=RACE_CODE, 
                  size_class=SCAL_SIZE_CLASS, count=COUNT,
                  sample_wt=SAMPLE_WT_KG, cond = CONDITION_CODE_RII, 
                  sample_type = SAMPLE_TYPE) -> catch
 
 
 # meat weight data ----
-awl %>% select(Event = EVENT_ID,  species=RACE_CODE,
+awl %>% 
+  select(Event = EVENT_ID,  species=RACE_CODE,
                j = SCALLOP_NUMBER, size_class = SCAL_SIZE_CLASS,
                weight=WHOLE_WT_GRAMS, worm=SHELL_WORM_SW, 
                height=SHELL_HEIGHT_MM, sex=SEX_SW, 
@@ -66,7 +75,8 @@ awl %>%
 
 # catch ----
 # create number and weight dataframes
-catch %>% filter(species==74120, cond==1) %>% 
+catch %>% 
+  filter(species==74120, cond==1) %>% 
    group_by(Event, size_class) %>% 
    summarise(catch=sum(count, na.rm=T)) %>% 
    dcast(Event~size_class,sum, drop=TRUE) -> s.catch 
@@ -74,7 +84,8 @@ catch %>% filter(species==74120, cond==1) %>%
 # write s.catch to .csv for use in shell height allocations 
 write_csv(s.catch, 'output/s.catch.csv')
 
-catch %>% filter(species==74120, cond==1) %>% 
+catch %>% 
+  filter(species==74120, cond==1) %>% 
    group_by(Event, size_class) %>% 
    summarise(weight=sum(sample_wt*1000, na.rm=T)) %>% # change to grams 
    dcast(Event~size_class,sum, drop=TRUE) -> s.weight 
@@ -84,12 +95,16 @@ names(s.weight) <- c('Event', 'large', 'small')
 
 
 # Tables for report of raw catch and weight numbers
-event %>% dplyr::select(Event, Bed) %>% left_join(s.catch) %>% 
+event %>% 
+  dplyr::select(Event, Bed) %>% 
+  left_join(s.catch) %>% 
    filter(complete.cases(.)) %>% 
    group_by(Bed) %>% 
    summarise(large.c=sum(large), small.c = sum(small), min.l=min(large), max.l=max(large), min.s=min(small), max.s=max(small)) -> catch.table
 
-event %>% dplyr::select(Event, Bed) %>% left_join(s.weight) %>% 
+event %>% 
+  dplyr::select(Event, Bed) %>% 
+  left_join(s.weight) %>% 
    filter(complete.cases(.)) %>% 
    group_by(Bed) %>% 
    summarise(large.lb=sum(large*0.00220462), small.lb = sum(small*0.00220462),
@@ -101,7 +116,11 @@ event %>% dplyr::select(Event, Bed) %>% left_join(s.weight) %>%
 # numbers ----
 scal.catch <- merge(s.catch,event, all = TRUE) # merge with events - keep NA
 scal.catch[is.na(scal.catch)] <- 0 # change NA to 0
-scal.catch %>% dplyr::select(Event, large, small,year,District,Bed,n,ai,area_nm2) %>% 
+
+s.catch %>% 
+  merge(event, all=TRUE)
+scal.catch %>% 
+  dplyr::select(Event, large, small,year,District,Bed,n,ai,area_nm2) %>% 
    mutate(all = large+small) %>% 
    melt(., id.vars=c('Event','year','District','Bed','n','ai','area_nm2')) %>% 
    mutate(di= value/ai) %>% 
