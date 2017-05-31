@@ -8,9 +8,9 @@ theme_set(theme_bw()+
 source('./code/functions.R')
 
 # data ----
-events <- read.csv('./data/events_2017D06_170522.csv')
-catch <- read.csv('./data/catchComp_2017D06_170522.csv')
-area <- read.csv('./2016_survey/data/area.csv')
+events <- read.csv('data/events_2017D06_170522.csv')
+catch <- read.csv('data/catchComp_2017D06_170522.csv')
+area <- read.csv('data/area.csv')
 awl <- read.csv('data/awl_2017D06_170526.csv')
 
 # event data ----
@@ -139,7 +139,8 @@ numbers_original %>%
 numbers <- lapply(scal.catch$dat,f.it)
 numbers <- as.data.frame(do.call(rbind,numbers))
 
-numbers %>% group_by(Bed,year,variable) %>% 
+numbers %>% 
+  group_by(Bed,year,variable) %>% 
    summarise(N_b=mean(N),
              llN=quantile(N,0.025),
              ulN=quantile(N,0.975),
@@ -169,17 +170,21 @@ weights_original <- as.data.frame(do.call(rbind,weights_original))
 # bootstrap weight----
 weights <- lapply(scal.weight$dat,f.it)
 weights <- as.data.frame(do.call(rbind,weights))
-weights %>% mutate(W=N*0.00220462, dbar_lb = dbar*0.00220462) -> weights # change to pounds
+weights %>% 
+  mutate(W=N*0.00220462, dbar_lb = dbar*0.00220462) -> weights # change to pounds
 
-weights %>% group_by(District,Bed,year,variable) %>% 
+weights %>% 
+  group_by(District,Bed,year,variable) %>% 
    summarise(llW=quantile(W,0.025),ulW=quantile(W,0.975),Weight=mean(W), 
              lldbar=quantile(dbar_lb,0.025),uldbar=quantile(dbar_lb,0.975),dbar_lb=mean(dbar_lb),
              varW = 1/((n())-1)*sum((W-Weight)^2),
              cvW=sqrt(varW)/Weight*100) -> weights_summary
 
 # meat weight ----
-as.data.frame(do.call(rbind,scal.catch$dat)) %>% filter(variable=='large') %>% 
-   left_join(meat_weight) %>% filter(ratio>0)-> meat.wts
+as.data.frame(do.call(rbind,scal.catch$dat)) %>% 
+  filter(variable=='large') %>% 
+   left_join(meat_weight) %>% 
+  filter(ratio>0)-> meat.wts
 
 # #K-S test ----
 # Comparing distribution between meat weight sample and height sample
@@ -230,10 +235,15 @@ meat.wts %>% group_by(year, District, Bed) %>%
 
 # Numbers based GHL
 awl %>% filter(species == 74120, size_class == 1, is.na(clapper), 
-               Event %in% event$Event) %>% group_by(Event) %>% 
-   summarise(mean_wt = mean(weight, na.rm=T)) %>% left_join(event) %>% 
-   group_by(year,Bed) %>% summarise(mean_wt = mean(mean_wt)) %>% 
-   left_join(N_summary) %>%  filter(variable=='large') %>% left_join(meat.wts) %>% 
+               Event %in% event$Event) %>% 
+  group_by(Event) %>% 
+   summarise(mean_wt = mean(weight, na.rm=T)) %>% 
+  left_join(event) %>% 
+   group_by(year,Bed) %>% 
+  summarise(mean_wt = mean(mean_wt)) %>% 
+   left_join(N_summary) %>%  
+  filter(variable=='large') %>% 
+  left_join(meat.wts) %>% 
    group_by(year, Bed) %>% 
    summarise(ll = ratio_bar*llN*mean_wt/453.592,
              meat = ratio_bar*N_b*mean_wt/453.592,
@@ -246,8 +256,10 @@ awl %>% filter(species == 74120, size_class == 1, is.na(clapper),
              highGHL.10 = ul * .10) -> number_GHL
 
 # Weight based GHL 
-meat.wts %>% left_join(weights_summary) %>% 
-   filter(variable=='large') %>% group_by(year,Bed) %>% 
+meat.wts %>% 
+  left_join(weights_summary) %>% 
+   filter(variable=='large') %>% 
+  group_by(year,Bed) %>% 
    summarise(ll = ratio_bar*llW,
              meat = ratio_bar*Weight,
              ul = ratio_bar*ulW,
@@ -260,7 +272,8 @@ meat.wts %>% left_join(weights_summary) %>%
 
 
 # Clappers ----
-catch %>% filter(species==74120, cond==52) %>% 
+catch %>% 
+  filter(species==74120, cond==52) %>% 
    group_by(Event) %>% summarise(count = sum(count, na.rm =T), weight=sum(sample_wt, na.rm=T)) -> clappers
 
 clappers <- merge(clappers,event, all = TRUE) # merge with events - keep NA
@@ -278,13 +291,18 @@ clappers_bed %>% mutate(dbar_wt_lb = dbar_wt*2.2046, Wt_c_lb = Wt_c*2.2046) -> c
 # convert kilograms to lbs.  
 
 #Percentage of clappers per bed by weight
-weights_summary %>% filter(variable == 'large') %>%  
-   right_join(clappers_bed) %>% select(District, Bed, year, n, variable, Weight,Wt_c_lb) %>% 
+weights_summary %>% 
+  filter(variable == 'large') %>%  
+   right_join(clappers_bed) %>% 
+  select(District, Bed, year, n, variable, Weight,Wt_c_lb) %>% 
    mutate(percent_clap_wt = (Wt_c_lb/ (Weight + Wt_c_lb)*100)) -> clap.weight.percent
 
 #Percentage of clappers per bed by numbers
-N_summary %>% filter(variable == 'large') %>% select (- cv) %>%   
-  right_join(clappers_bed) %>% select(Bed, year, n, variable, N_b,N_c) %>% 
+N_summary %>% 
+  filter(variable == 'large') %>% 
+  select (- cv) %>%   
+  right_join(clappers_bed) %>% 
+  select(Bed, year, n, variable, N_b,N_c) %>% 
   mutate(percent_clap = (N_c/ (N_b + N_c)*100)) -> clap.numb.percent
 
 clap.numb.percent %>% right_join(clap.weight.percent) %>% 
@@ -292,18 +310,22 @@ clap.numb.percent %>% right_join(clap.weight.percent) %>%
 
 # figures ----
 # Numbers
-numbers %>% filter(variable=='large') %>% 
+numbers %>% 
+  filter(variable=='large') %>% 
    ggplot(aes(dbar, fill=Bed))+geom_density()+ facet_wrap(~Bed)
 
-numbers %>% filter(variable=='large') %>% 
+numbers %>% 
+  filter(variable=='large') %>% 
    ggplot(aes(dbar, fill=Bed))+geom_density()
 
-numbers %>% filter(variable=='small') %>% 
+numbers %>% 
+  filter(variable=='small') %>% 
    ggplot(aes(N, fill=Bed))+geom_density() 
 
 N.text = data.frame(Bed='EK1', variable='large', N_b=3.5)
 
-N_summary %>% group_by(Bed,variable) %>%    
+N_summary %>% 
+  group_by(Bed,variable) %>%    
    ggplot(aes(Bed,N_b/1000000))+geom_point()+
    geom_errorbar(aes(ymin=llN/1000000,ymax=ulN/1000000), width=0.2)+
    facet_wrap(~variable)+
@@ -318,10 +340,12 @@ ggsave("./figs/Abundance.png", dpi=300, height=4.5, width=6.5, units="in")
 meat.wts %>%  
    ggplot(aes(ratio_bar, fill=Bed))+geom_density()+ facet_wrap(~Bed)
 
-weight %>% filter(variable=='large') %>% #2017 - weight does not exist
+weight %>% 
+  filter(variable=='large') %>% #2017 - weight does not exist
    ggplot(aes(dbar_lb, fill=Bed))+geom_density()
 
-weight %>% filter(variable=='small') %>% #2017 - weight does not exist
+weight %>% 
+  filter(variable=='small') %>% #2017 - weight does not exist
    ggplot(aes(N_lb, fill=Bed))+geom_density() + facet_wrap(~Bed)
 
 wt.text = data.frame(Bed='EK1', variable='large', Weight=3.5)
